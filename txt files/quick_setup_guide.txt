@@ -1,0 +1,49 @@
+QUICK SETUP GUIDE - Heritage Site Assessment Report Generator
+=============================================================
+
+STEP 1: Install Python
+----------------------
+Download Python from https://python.org
+IMPORTANT: Check "Add Python to PATH" during installation
+
+STEP 2: Open Command Prompt in BuildFolder
+-------------------------------------------
+- Right-click in the BuildFolder
+- Select "Open in Terminal" or "Open Command Prompt here"
+
+STEP 3: Install Dependencies
+----------------------------
+Type this command and press Enter:
+pip install -r requirements.txt
+
+STEP 4: Build the Executable
+-----------------------------
+Type this command and press Enter:
+python build_exe.py
+
+STEP 5: Test the Setup (Optional)
+----------------------------------
+Type this command and press Enter:
+python test_setup.py
+
+DONE! You now have report_generator.exe ready to use.
+
+HOW TO USE:
+-----------
+1. Place these logo files in the same folder as your CSV:
+   - Biladi logo.jpg
+   - CER Logo.jpg
+
+2. Drag and drop your CSV file onto run_report_generator.bat
+
+3. Wait for the program to:
+   - Download images from Google Drive links
+   - Generate the PDF report
+
+4. Find your PDF report in the same folder as your CSV file
+
+TROUBLESHOOTING:
+----------------
+- If you get errors, make sure you have internet connection
+- Google Drive images must be publicly accessible (not private)
+- Run test_setup.py to verify all dependencies are installed

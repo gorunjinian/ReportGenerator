@@ -1,0 +1,16 @@
+We will need to build a simple .exe program using python and a simple .bat accompanied with it to run the .exe directly without using command line or a terminal.
+The goal is to turn a csv file that contains data gathered through google forms about a specific location site that has some kind of historical or heritage value. The report is an assessment on the condition of the site after a conflict or a war or a natural disaster.
+The PDF report should have a fix an consistent formatting layout so that all reports look the same since the data gathered are fixed inputs fields from Google Forms.
+The Report will have 9 main sections:
+1. General Information
+2. Images and Data Information
+3. Preliminary Conditions
+4. Evidence of Conflict or Damage
+5. Visible Damage
+6. Environmental Concerns
+7. Documentation and Evidence
+8. Risk Assessment
+9. Historical or Cultural Significance
+Each main section will contain the many fields from data gathered from Google Forms
+Note that, once many forms are filled on Google Forms and then exported as a CSV file, all of the collected forms will be in the exported csv file, the program should write the report of the latest filled form and the start of the latest data is identified by the last Date field present in the CSV file in the YYY/MM/DD format. Additionally, images uploaded through the google forms will now show google drive links in the CSV file, those files should be downloaded as well
+The CSV file also contains the corresponding data fields in the beginning of the CSV file.
