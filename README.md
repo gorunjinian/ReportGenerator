@@ -48,8 +48,6 @@ This will create `report_generator.exe` in your BuildFolder.
 
 ### Method 1: Drag and Drop (Recommended)
 1. Place your logo files in the same folder as your CSV file:
-   - `Biladi logo.jpg`
-   - `CER Logo.jpg`
 2. Drag your CSV file onto `run_report_generator.bat`
 3. The program will download images from Google Drive links and generate the PDF report
 
