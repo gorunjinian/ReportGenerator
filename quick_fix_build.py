@@ -219,8 +219,8 @@ def quick_fix_build():
     # Step 2: Check essential modules
     required_files = [
         'main.py', 'report_generator.py', 'data_loader.py',
-        'image_handler.py', 'pdf_builder.py', 'utils.py',
-        'constants.py', 'exceptions.py'
+        'image_handler.py', 'pdf_builder.py', 'gui_interface.py',
+        'utils.py', 'constants.py', 'exceptions.py'
     ]
     
     missing = [f for f in required_files if not os.path.exists(f)]
@@ -235,7 +235,7 @@ def quick_fix_build():
         'pyinstaller',
         '--onefile',
         '--name=report_generator',
-        '--console',  # Keep console for better error messages
+        '--windowed',  # Hide console for GUI mode (remove if you want console)
         
         # Essential imports only
         '--hidden-import=reportlab',
@@ -251,11 +251,19 @@ def quick_fix_build():
         '--hidden-import=PIL',
         '--hidden-import=PIL.Image',
         
+        # GUI dependencies
+        '--hidden-import=tkinter',
+        '--hidden-import=tkinter.ttk',
+        '--hidden-import=tkinter.filedialog',
+        '--hidden-import=tkinter.messagebox',
+        '--hidden-import=tkinter.scrolledtext',
+        
         # Project modules
         '--hidden-import=data_loader',
         '--hidden-import=image_handler',
         '--hidden-import=pdf_builder',
-        '--hidden-import=report_generator', 
+        '--hidden-import=report_generator',
+        '--hidden-import=gui_interface',
         '--hidden-import=utils',
         '--hidden-import=constants',
         '--hidden-import=exceptions',
@@ -288,11 +296,23 @@ def quick_fix_build():
             cleanup_build()
             
             print(f"\n📋 USAGE INSTRUCTIONS:")
-            print("1. Place these logo files in same folder as your CSV:")
+            print("GUI MODE (Recommended):")
+            print("1. Double-click report_generator.exe")
+            print("2. Select CSV file from the list or browse for one")
+            print("3. Click 'Generate PDF Report'")
+            print("4. Wait for completion")
+            print()
+            print("COMMAND LINE MODE:")
+            print("1. Place logo files in same folder as your CSV:")
             print("   - Biladi logo.jpg")
             print("   - CER Logo.jpg") 
-            print("2. Drag CSV file onto run_report_generator.bat")
-            print("3. Or run: report_generator.exe your_file.csv")
+            print("2. Run: report_generator.exe your_file.csv")
+            print("3. Or use: run_report_generator.bat (drag & drop)")
+            print()
+            print("NOTES:")
+            print("- Internet connection required for image downloads")
+            print("- Logo files should be in same directory as CSV")
+            print("- Google Drive images must be publicly accessible")
             
             return True
         else:
