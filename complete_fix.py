@@ -67,8 +67,7 @@ REPORT_TITLE = "Site Assessment Report"
 SECTION_TITLE_SIZE = 14
 FIELD_LABEL_SIZE = 10
 FIELD_VALUE_SIZE = 10
-
-# Font settings
+ Font settings
 DEFAULT_FONT = 'Helvetica'
 BOLD_FONT = 'Helvetica-Bold'
 ARABIC_FONT_PATH = 'ARIALUNI.TTF'

@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
@@ -168,12 +168,30 @@ class PDFBuilder:
 
         if not populated_fields:
             self.story.append(Paragraph("(No data available)", self.styles['FieldValue']))
-            self.story.append(Spacer(1, 0.2*inch))
-            return
+        else:
+            # Create two-column layout
+            self._create_two_column_layout(populated_fields)
 
-        # Create two-column layout
-        self._create_two_column_layout(populated_fields)
-        self.story.append(Spacer(1, 0.2*inch))
+        # Add blue divider line
+        self._add_section_divider()
+
+        # Add spacing after divider
+        self.story.append(Spacer(1, 0.15*inch))
+
+    def _add_section_divider(self):
+        """Add a thin blue horizontal divider line"""
+        # Create a thin blue line spanning the page width
+        divider = HRFlowable(
+            width="100%",
+            thickness=1,
+            lineCap='round',
+            color=colors.HexColor(SECTION_TITLE_COLOR),  # Same blue as section titles
+            spaceBefore=0.1*inch,
+            spaceAfter=0.05*inch,
+            hAlign='CENTER',
+            vAlign='BOTTOM'
+        )
+        self.story.append(divider)
 
     def _create_two_column_layout(self, fields: List[tuple]):
         """Create a two-column layout for field-value pairs"""
@@ -251,8 +269,6 @@ class PDFBuilder:
         self.story.append(Paragraph("7. Documentation and Evidence", self.styles['SectionTitle']))
         self.story.append(Spacer(1, 0.1*inch))
 
-        # Add any text documentation first (if this section has text fields)
-
         # Add primary images
         if primary_images:
             self.story.append(Paragraph("<b>Primary Display Photo:</b>", self.styles['FieldLabel']))
@@ -275,7 +291,11 @@ class PDFBuilder:
         if not primary_images and not additional_images:
             self.story.append(Paragraph("(No images available)", self.styles['FieldValue']))
 
-        self.story.append(Spacer(1, 0.2*inch))
+        # Add blue divider line
+        self._add_section_divider()
+
+        # Add spacing after divider
+        self.story.append(Spacer(1, 0.15*inch))
 
     def add_documentation_section_with_text(self, text_fields: Dict[str, str]):
         """Add text documentation fields in two-column layout"""
@@ -288,7 +308,12 @@ class PDFBuilder:
             self.story.append(Paragraph("7. Documentation and Evidence", self.styles['SectionTitle']))
             self.story.append(Spacer(1, 0.1*inch))
             self._create_two_column_layout(populated_fields)
-            self.story.append(Spacer(1, 0.1*inch))
+
+            # Add blue divider line
+            self._add_section_divider()
+
+            # Add spacing after divider
+            self.story.append(Spacer(1, 0.15*inch))
 
     def _add_image(self, img_path: str, max_width: float, max_height: float):
         """Add single image to the story"""
