@@ -44,7 +44,7 @@ except ImportError:
     FIELD_VALUE_COLOR = '#000000'
     
     # Text settings
-    REPORT_TITLE = "Heritage Site Assessment Report"
+    REPORT_TITLE = "Site Assessment Report"
     SECTION_TITLE_SIZE = 14
     FIELD_LABEL_SIZE = 10
     FIELD_VALUE_SIZE = 10

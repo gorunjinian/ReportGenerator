@@ -67,7 +67,7 @@ class HeritageReportGUI:
         # Title
         title_label = ttk.Label(
             main_frame, 
-            text="Heritage Site Assessment Report Generator",
+            text="Site Assessment Report Generator",
             font=('Arial', 16, 'bold')
         )
         title_label.grid(row=0, column=0, columnspan=3, pady=(0, 20))

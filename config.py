@@ -73,7 +73,7 @@ RIGHT_MARGIN = 0.5
 # ==============================================================================
 
 # Report title
-REPORT_TITLE = "Heritage Site Assessment Report"
+REPORT_TITLE = "Site Assessment Report"
 
 # Font sizes
 SECTION_TITLE_SIZE = 14
