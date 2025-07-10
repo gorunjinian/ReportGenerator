@@ -58,7 +58,7 @@ LEFT_MARGIN = 0.5 * inch
 RIGHT_MARGIN = 0.5 * inch
 
 # Colors
-SECTION_TITLE_COLOR = '#1f4788'
+SECTION_TITLE_COLOR = '#ff5c28'
 FIELD_LABEL_COLOR = '#333333'
 FIELD_VALUE_COLOR = '#000000'
 
@@ -169,8 +169,8 @@ PRIMARY_IMAGE_FIELD = "Primary Display Photo Upload"
 ADDITIONAL_IMAGES_FIELD = "Additional images and files "
 
 # Logo filenames
-BILADI_LOGO_FILENAME = "Biladi logo.jpg"
-CER_LOGO_FILENAME = "CER Logo.jpg"
+BILADI_LOGO_FILENAME = "Biladi logo.png"
+CER_LOGO_FILENAME = "CER Logo.png"
 '''
     
     # Backup original
@@ -382,7 +382,7 @@ def main():
     print("✅ Your CSV data works correctly")
     print("\nNext steps:")
     print("1. Test full report: python main.py 'CSV data.csv'")
-    print("2. Build executable: python quick_fix_build.py")
+    print("2. Build executable: python build.py")
     
     return True
 

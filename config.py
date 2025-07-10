@@ -1,129 +1,160 @@
 """
-Configuration file for Heritage Site Assessment Report Generator
-
-Modify these settings to customize the report generation.
-This file is optional - if not present, default values will be used.
+Configuration file for Heritage Report Generator
+Updated with 3-per-row image layout
 """
 
-# ==============================================================================
-# DATE FORMATS
-# ==============================================================================
+from reportlab.lib.pagesizes import A4, letter
+from reportlab.lib.units import inch
 
-# Format of dates in the CSV file
-DATE_INPUT_FORMAT = '%Y/%m/%d'  # e.g., 2024/12/15
+# Default configuration values
+DATE_INPUT_FORMAT = '%Y/%m/%d'
+DATE_OUTPUT_FORMAT = '%Y-%m-%d'
 
-# Format of dates in the PDF report
-DATE_OUTPUT_FORMAT = '%Y-%m-%d'  # e.g., 2024-12-15
+# Alternative date formats to try
+ALTERNATIVE_DATE_FORMATS = [
+    '%Y-%m-%d',      # 2024-01-15 (common Google Forms format)
+    '%Y/%m/%d',      # 2024/01/15
+    '%m/%d/%Y',      # 01/15/2024
+    '%d/%m/%Y',      # 15/01/2024
+    '%Y-%m-%d %H:%M:%S',  # 2024-01-15 10:30:00
+    '%m/%d/%Y %H:%M:%S',  # 01/15/2024 10:30:00
+]
 
-# ==============================================================================
-# LOGO SETTINGS
-# ==============================================================================
-
-# Logo dimensions in inches
+# Logo settings (inches)
 LOGO_WIDTH = 2
 LOGO_HEIGHT = 1
 
-# Logo filenames (must be in same directory as CSV)
-BILADI_LOGO_FILENAME = "Biladi logo.jpg"
-CER_LOGO_FILENAME = "CER Logo.jpg"
-
-# ==============================================================================
-# IMAGE SETTINGS
-# ==============================================================================
-
-# Primary image dimensions (inches)
+# Image settings (inches) - Updated for 3 images per row
 PRIMARY_IMAGE_MAX_WIDTH = 6
 PRIMARY_IMAGE_MAX_HEIGHT = 4
+ADDITIONAL_IMAGE_WIDTH = 2.4  # Reduced for 3-per-row layout
+ADDITIONAL_IMAGE_HEIGHT = 1.8
+IMAGES_PER_ROW = 3  # Changed from 2 to 3 as requested
 
-# Additional images dimensions (inches)
-ADDITIONAL_IMAGE_WIDTH = 3
-ADDITIONAL_IMAGE_HEIGHT = 2
-
-# Number of images per row in grid
-IMAGES_PER_ROW = 2
-
-# ==============================================================================
-# DOWNLOAD SETTINGS
-# ==============================================================================
-
-# Timeout for image downloads (seconds)
-DOWNLOAD_TIMEOUT = 30
-
-# Download chunk size (bytes)
-CHUNK_SIZE = 8192
-
-# Maximum download retry attempts
+# Download settings
+DOWNLOAD_TIMEOUT = 30  # seconds
+CHUNK_SIZE = 8192  # bytes
 MAX_RETRIES = 3
 
-# ==============================================================================
-# PAGE SETTINGS
-# ==============================================================================
+# Page settings
+PAGE_SIZE = A4
+TOP_MARGIN = 0.5 * inch
+BOTTOM_MARGIN = 0.5 * inch
+LEFT_MARGIN = 0.5 * inch
+RIGHT_MARGIN = 0.5 * inch
 
-# Page size ('A4' or 'LETTER')
-PAGE_SIZE = 'A4'
+# Colors
+SECTION_TITLE_COLOR = '#ff5c28'
+FIELD_LABEL_COLOR = '#333333'
+FIELD_VALUE_COLOR = '#000000'
 
-# Page margins in inches
-TOP_MARGIN = 0.5
-BOTTOM_MARGIN = 0.5
-LEFT_MARGIN = 0.5
-RIGHT_MARGIN = 0.5
-
-# ==============================================================================
-# TEXT SETTINGS
-# ==============================================================================
-
-# Report title
-REPORT_TITLE = "Site Assessment Report"
-
-# Font sizes
+# Text settings
+REPORT_TITLE = "Heritage Site Assessment Report"
 SECTION_TITLE_SIZE = 14
 FIELD_LABEL_SIZE = 10
 FIELD_VALUE_SIZE = 10
 
-# Colors (hex format)
-SECTION_TITLE_COLOR = '#1f4788'  # Dark blue
-FIELD_LABEL_COLOR = '#333333'    # Dark gray
-FIELD_VALUE_COLOR = '#000000'    # Black
-
-# ==============================================================================
-# FONT SETTINGS
-# ==============================================================================
-
-# Default fonts
+# Font settings
 DEFAULT_FONT = 'Helvetica'
 BOLD_FONT = 'Helvetica-Bold'
-
-# Arabic font support (if available)
-# Place ARIALUNI.TTF in the same folder as the script
 ARABIC_FONT_PATH = 'ARIALUNI.TTF'
 ARABIC_FONT_NAME = 'ArialUnicode'
 
-# ==============================================================================
-# ADVANCED SETTINGS
-# ==============================================================================
+# Try to load custom config and override defaults
+try:
+    from config import *
+    # Ensure PAGE_SIZE is properly converted if it's a string
+    if isinstance(PAGE_SIZE, str):
+        if PAGE_SIZE.upper() == 'A4':
+            PAGE_SIZE = A4
+        elif PAGE_SIZE.upper() == 'LETTER':
+            PAGE_SIZE = letter
+        else:
+            PAGE_SIZE = A4  # fallback
 
-# Enable debug logging
-DEBUG_MODE = False
+    # Ensure margins are proper units
+    if isinstance(TOP_MARGIN, (int, float)):
+        TOP_MARGIN = TOP_MARGIN * inch
+    if isinstance(BOTTOM_MARGIN, (int, float)):
+        BOTTOM_MARGIN = BOTTOM_MARGIN * inch
+    if isinstance(LEFT_MARGIN, (int, float)):
+        LEFT_MARGIN = LEFT_MARGIN * inch
+    if isinstance(RIGHT_MARGIN, (int, float)):
+        RIGHT_MARGIN = RIGHT_MARGIN * inch
 
-# Save downloaded images after report generation
-KEEP_DOWNLOADED_IMAGES = False
+except ImportError:
+    pass  # Use defaults
 
-# Image quality (1-100, higher is better quality but larger file size)
-IMAGE_QUALITY = 85
+# Google Drive patterns
+GOOGLE_DRIVE_PATTERNS = [
+    r'/file/d/([a-zA-Z0-9-_]+)',  # /file/d/FILE_ID/view
+    r'id=([a-zA-Z0-9-_]+)',        # ?id=FILE_ID
+    r'/([a-zA-Z0-9-_]{33,})',     # Long ID in path
+    r'^([a-zA-Z0-9-_]+)$'         # Just the ID
+]
 
-# Maximum PDF file size warning (MB)
-MAX_PDF_SIZE_WARNING = 50
+# Field mappings for sections
+SECTION_FIELDS = {
+    "general_info": {
+        "Date of Assessment": "Date of Assessment",
+        "Assessor's Name": "Assessor's Name ",
+        "Supervisor": "Supervisor ",
+        "Organization": "Organization",
+        "Monument Reference": "Monument Reference ",
+        "Monument Name": "Monument Name ",
+        "Ownership": "Ownership "
+    },
+    "location_info": {
+        "Governorate": "Governorate",
+        "District": "District",
+        "City/Village": "City-Village",
+        "Location": "Location"
+    },
+    "preliminary_conditions": {
+        "Observed Structural Conditions": "Observed structural conditions ",
+        "Exterior Walls Condition": "Exterior walls condition",
+        "Roof Conditions": "Roof Conditions",
+        "Major Architectural Failure": "Major Architectural Failure",
+        "Location of Major Damage": "Location of Major Damage"
+    },
+    "conflict_evidence": {
+        "Evidence of Armed Conflict": "Evidence of Armed Conflict",
+        "Fire or Smoke Damage": "Fire or Smoke Damage",
+        "Looting or Vandalism": "Looting or Vandalism",
+        "Conflict-Specific Damage Indicator": "Conflict-Specific damage indicator "
+    },
+    "visible_damage": {
+        "Significant Cultural/Religious Symbol Damage": "Significant Cultural or Religous Symbol Damage ",
+        "Visible Damage to Sculptures/Carvings": "Visible Damage to Sculptures, Catvings and Facade ",
+        "Damage to Decorative Elements": "Damage to decorative elements "
+    },
+    "environmental_concerns": {
+        "Water Infiltration and Weather Exposure": "Water Infiltration and Weather Exposure ",
+        "Vegetation Overgrowth": "Vegetation Overgrowth ",
+        "Secondary Hazards Present": "Secondary Hazards present "
+    },
+    "documentation": {
+        "Satellite Imagery Observations": "Satellite Imagery Observations",
+        "Eyewitness Report": "Eyewitness Report",
+        "Testimonials": "Testimonials"
+    },
+    "risk_assessment": {
+        "Potential Hazards to Public and Site": "Potential Hazards to the public and site",
+        "Urgent Stabilization Required": "Urgent Stabilization Required",
+        "Security Measures Needed": "Security measures needed",
+        "Likelihood of Continued Damage": "Likelihood of continued damage"
+    },
+    "significance": {
+        "Historical or Cultural Significance": "Historical or Cultural Significance",
+        "Significance for Local Population": "Significance for local population",
+        "Additional References": "Additional References"
+    }
+}
 
-# ==============================================================================
-# CUSTOM FIELD MAPPINGS
-# ==============================================================================
-# Uncomment and modify to customize field names or add new fields
+# Image field names
+PRIMARY_IMAGE_FIELD = "Primary Display Photo Upload"
+ADDITIONAL_IMAGES_FIELD = "Additional images and files "
 
-# SECTION_FIELDS = {
-#     "general_info": {
-#         "Date of Assessment": "Date of Assessment",
-#         "Assessor's Name": "Assessor's Name ",
-#         # Add more fields as needed
-#     }
-# }
-
+# Logo filenames
+BILADI_LOGO_FILENAME = "Biladi logo.png"
+CER_LOGO_FILENAME = "CER Logo.png"

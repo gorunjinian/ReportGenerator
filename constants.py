@@ -23,27 +23,27 @@ ALTERNATIVE_DATE_FORMATS = [
 LOGO_WIDTH = 2
 LOGO_HEIGHT = 1
 
-# Image settings (inches)
+# Image settings (inches) - Updated for 3 images per row with FIXED sizing
 PRIMARY_IMAGE_MAX_WIDTH = 6
 PRIMARY_IMAGE_MAX_HEIGHT = 4
-ADDITIONAL_IMAGE_WIDTH = 3
-ADDITIONAL_IMAGE_HEIGHT = 2
-IMAGES_PER_ROW = 2
+ADDITIONAL_IMAGE_WIDTH = 2.2  # Fixed width for grid images
+ADDITIONAL_IMAGE_HEIGHT = 1.6  # Fixed height for grid images
+IMAGES_PER_ROW = 3  # Changed from 2 to 3
 
 # Download settings
 DOWNLOAD_TIMEOUT = 30  # seconds
 CHUNK_SIZE = 8192  # bytes
 MAX_RETRIES = 3
 
-# Page settings
+# Page settings - FIXED margins to prevent layout issues
 PAGE_SIZE = A4
-TOP_MARGIN = 0.5 * inch
-BOTTOM_MARGIN = 0.5 * inch
-LEFT_MARGIN = 0.5 * inch
-RIGHT_MARGIN = 0.5 * inch
+TOP_MARGIN = 0.75 * inch  # Increased for safety
+BOTTOM_MARGIN = 0.75 * inch  # Increased for safety
+LEFT_MARGIN = 0.75 * inch   # Increased for safety
+RIGHT_MARGIN = 0.75 * inch  # Increased for safety
 
 # Colors
-SECTION_TITLE_COLOR = '#1f4788'
+SECTION_TITLE_COLOR = '#ff5c28'
 FIELD_LABEL_COLOR = '#333333'
 FIELD_VALUE_COLOR = '#000000'
 
@@ -70,7 +70,7 @@ try:
             PAGE_SIZE = letter
         else:
             PAGE_SIZE = A4  # fallback
-    
+
     # Ensure margins are proper units
     if isinstance(TOP_MARGIN, (int, float)):
         TOP_MARGIN = TOP_MARGIN * inch
@@ -80,14 +80,14 @@ try:
         LEFT_MARGIN = LEFT_MARGIN * inch
     if isinstance(RIGHT_MARGIN, (int, float)):
         RIGHT_MARGIN = RIGHT_MARGIN * inch
-        
+
 except ImportError:
     pass  # Use defaults
 
-# Google Drive patterns
+# Google Drive patterns - Updated to handle Google Forms URLs
 GOOGLE_DRIVE_PATTERNS = [
     r'/file/d/([a-zA-Z0-9-_]+)',  # /file/d/FILE_ID/view
-    r'id=([a-zA-Z0-9-_]+)',        # ?id=FILE_ID
+    r'id=([a-zA-Z0-9-_]+)',        # ?id=FILE_ID or &id=FILE_ID
     r'/([a-zA-Z0-9-_]{33,})',     # Long ID in path
     r'^([a-zA-Z0-9-_]+)$'         # Just the ID
 ]
@@ -155,5 +155,5 @@ PRIMARY_IMAGE_FIELD = "Primary Display Photo Upload"
 ADDITIONAL_IMAGES_FIELD = "Additional images and files "
 
 # Logo filenames
-BILADI_LOGO_FILENAME = "Biladi logo.jpg"
-CER_LOGO_FILENAME = "CER Logo.jpg"
+BILADI_LOGO_FILENAME = "Biladi logo.png"
+CER_LOGO_FILENAME = "CER Logo.png"

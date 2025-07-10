@@ -378,7 +378,7 @@ def main():
     if passed == total:
         print("\n🎉 ALL TESTS PASSED! Ready to build executable.")
         print("\nTo build the executable, run:")
-        print("   python quick_fix_build.py")
+        print("   python build.py")
     elif passed >= total - 1:
         print("\n⚠️  Most tests passed. You can try building, but there may be issues.")
     else:

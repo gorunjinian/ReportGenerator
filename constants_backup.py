@@ -39,7 +39,7 @@ except ImportError:
     RIGHT_MARGIN = 0.5 * inch
     
     # Colors
-    SECTION_TITLE_COLOR = '#1f4788'
+    SECTION_TITLE_COLOR = '#ff5c28'
     FIELD_LABEL_COLOR = '#333333'
     FIELD_VALUE_COLOR = '#000000'
     
