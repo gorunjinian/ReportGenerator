@@ -1,15 +1,17 @@
 """
 BALANCED PDF building module for Heritage Report Generator
-Moderate logo sizing with compact header layout
+Moderate logo sizing with compact header layout and diagonal watermark
 """
 
 import os
 import logging
+import math
 from typing import List, Dict, Any, Optional
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageTemplate, BaseDocTemplate, PageBreak
+from reportlab.platypus.frames import Frame
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
@@ -23,6 +25,79 @@ from exceptions import PDFGenerationError
 logger = logging.getLogger(__name__)
 
 
+class WatermarkPageTemplate(PageTemplate):
+    """Custom page template that adds diagonal Biladi logo watermark"""
+
+    def __init__(self, id, frames, biladi_logo_path=None, **kw):
+        """Initialize watermark page template"""
+        PageTemplate.__init__(self, id, frames, **kw)
+        self.biladi_logo_path = biladi_logo_path
+
+    def beforeDrawPage(self, canvas, doc):
+        """Draw the watermark before page content"""
+        if self.biladi_logo_path and os.path.exists(self.biladi_logo_path):
+            self._draw_diagonal_watermark(canvas)
+
+    def _draw_diagonal_watermark(self, canvas):
+        """Draw diagonal Biladi logo watermark across the page"""
+        try:
+            # Save canvas state
+            canvas.saveState()
+
+            # Get page dimensions
+            page_width, page_height = A4
+
+            # Calculate diagonal length (much smaller and more subtle)
+            diagonal_length = math.sqrt(page_width**2 + page_height**2) * 0.56  # 56% of diagonal (20% smaller than 70%)
+
+            # Get original logo dimensions
+            from PIL import Image as PILImage
+            with PILImage.open(self.biladi_logo_path) as img:
+                orig_width, orig_height = img.size
+                aspect_ratio = orig_width / orig_height
+
+            # Calculate watermark dimensions maintaining aspect ratio
+            if aspect_ratio > 1:  # Wide logo
+                watermark_width = diagonal_length
+                watermark_height = diagonal_length / aspect_ratio
+            else:  # Tall logo
+                watermark_height = diagonal_length
+                watermark_width = diagonal_length * aspect_ratio
+
+            # Calculate rotation angle (diagonal)
+            angle = math.degrees(math.atan2(page_height, page_width))
+
+            # Calculate center position
+            center_x = page_width / 2
+            center_y = page_height / 2
+
+            # Set much higher transparency (15% opacity - much more transparent)
+            canvas.setFillAlpha(0.15)
+            canvas.setStrokeAlpha(0.15)
+
+            # Move to center and rotate
+            canvas.translate(center_x, center_y)
+            canvas.rotate(angle)
+
+            # Draw the logo centered
+            canvas.drawImage(
+                self.biladi_logo_path,
+                -watermark_width/2,  # Center horizontally
+                -watermark_height/2, # Center vertically
+                width=watermark_width,
+                height=watermark_height,
+                mask='auto'  # Handle transparency
+            )
+
+            # Restore canvas state
+            canvas.restoreState()
+
+            logger.debug(f"Drew subtle diagonal watermark: {watermark_width:.1f}x{watermark_height:.1f} at {angle:.1f}° (15% opacity)")
+
+        except Exception as e:
+            logger.warning(f"Could not draw watermark: {e}")
+
+
 class PDFBuilder:
     """Balanced PDF generator with moderate logo sizing and compact layout"""
 
@@ -32,6 +107,7 @@ class PDFBuilder:
         self.styles = getSampleStyleSheet()
         self.setup_custom_styles()
         self.story = []
+        self.biladi_logo_path = None  # Will be set when logos are processed
 
     def setup_custom_styles(self):
         """Setup custom paragraph styles"""
@@ -146,11 +222,16 @@ class PDFBuilder:
             return (1.5*inch, 0.8*inch)
 
     def add_header_with_logos(self, csv_dir: str):
-        """Add compact header with balanced logo sizing"""
+        """Add compact header with balanced logo sizing and store watermark path"""
         try:
             # Check for logo files
             biladi_logo_path = os.path.join(csv_dir, BILADI_LOGO_FILENAME)
             cer_logo_path = os.path.join(csv_dir, CER_LOGO_FILENAME)
+
+            # Store the Biladi logo path for watermarking
+            if os.path.exists(biladi_logo_path):
+                self.biladi_logo_path = biladi_logo_path
+                logger.info(f"Biladi logo found for watermarking: {biladi_logo_path}")
 
             header_data = []
 
@@ -532,15 +613,15 @@ class PDFBuilder:
             return None
 
     def generate(self) -> bool:
-        """Generate the PDF document with balanced features"""
+        """Generate the PDF document with balanced features and diagonal watermark"""
         try:
             if not self.story:
                 self.story.append(Paragraph("No content available", self.styles['Normal']))
 
-            logger.info(f"Generating balanced PDF with moderate logo sizing")
+            logger.info(f"Generating balanced PDF with moderate logo sizing and diagonal watermark")
 
-            # Use standard margins
-            doc = SimpleDocTemplate(
+            # Create custom document with watermark support
+            doc = BaseDocTemplate(
                 self.output_path,
                 pagesize=A4,
                 topMargin=0.75*inch,
@@ -549,18 +630,61 @@ class PDFBuilder:
                 rightMargin=0.75*inch
             )
 
-            # Build PDF
+            # Create a frame for the content
+            frame = Frame(
+                0.75*inch,  # left margin
+                0.75*inch,  # bottom margin
+                A4[0] - 1.5*inch,  # width (page width - left and right margins)
+                A4[1] - 1.5*inch,  # height (page height - top and bottom margins)
+                id='normal'
+            )
+
+            # Create page template with watermark
+            template = WatermarkPageTemplate(
+                id='watermark_page',
+                frames=[frame],
+                biladi_logo_path=self.biladi_logo_path
+            )
+
+            # Add template to document
+            doc.addPageTemplates([template])
+
+            # Build PDF with watermark
             doc.build(self.story)
 
             # Verify
             if os.path.exists(self.output_path):
                 file_size = os.path.getsize(self.output_path)
-                logger.info(f"Balanced PDF generated: {self.output_path} ({file_size} bytes)")
+                if self.biladi_logo_path:
+                    logger.info(f"PDF with diagonal watermark generated: {self.output_path} ({file_size} bytes)")
+                else:
+                    logger.info(f"PDF generated (no watermark - logo not found): {self.output_path} ({file_size} bytes)")
                 return True
             else:
                 logger.error("PDF file was not created")
                 return False
 
         except Exception as e:
-            logger.error(f"Error generating balanced PDF: {e}")
-            raise PDFGenerationError(f"Failed to generate PDF: {str(e)}")
+            logger.error(f"Error generating PDF with watermark: {e}")
+            # Fallback to simple PDF generation without watermark
+            try:
+                logger.info("Attempting fallback PDF generation without watermark...")
+                doc = SimpleDocTemplate(
+                    self.output_path,
+                    pagesize=A4,
+                    topMargin=0.75*inch,
+                    bottomMargin=0.75*inch,
+                    leftMargin=0.75*inch,
+                    rightMargin=0.75*inch
+                )
+                doc.build(self.story)
+
+                if os.path.exists(self.output_path):
+                    logger.info(f"Fallback PDF generated without watermark: {self.output_path}")
+                    return True
+                else:
+                    raise PDFGenerationError("Fallback PDF generation also failed")
+
+            except Exception as fallback_e:
+                logger.error(f"Fallback PDF generation failed: {fallback_e}")
+                raise PDFGenerationError(f"Failed to generate PDF: {str(e)}, fallback also failed: {str(fallback_e)}")
